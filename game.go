@@ -14,7 +14,7 @@ func New() Game {
 
 func (g *Game) Start() {
 	g.grid.Reset()
-	g.grid.Print()
+	g.grid.PrintNewGrid()
 
 	var position int
 	player := 1
@@ -27,10 +27,13 @@ func (g *Game) Start() {
 		fmt.Scanf("%d%s", &position)
 
 		if err := g.grid.MakePlay(position-1, player); err != nil {
-			g.grid.SetError(&err)
+			g.grid.ShowError()
 			continue
-		} else {
-			g.grid.SetError(nil)
+		} else if err := g.grid.PrintPlay(position-1, player); err != nil {
+			g.grid.ShowError()
+			continue
+		} else if g.grid.Err != nil {
+			g.grid.ClearError()
 		}
 
 		win, _ := g.grid.HasWin()

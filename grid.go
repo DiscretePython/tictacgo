@@ -12,19 +12,40 @@ var invalidPlayError = fmt.Errorf("Invalid move")
 
 type Grid struct {
 	plays [GRID_CELLS]int
-	err   *error
+	Err   *error
+}
+
+func (g *Grid) checkPlayInvalid(position int, player int) error {
+	if position < 0 || position > GRID_CELLS-1 {
+		g.Err = &invalidPlayError
+		return *g.Err
+	} else if player != 1 && player != 2 {
+		g.Err = &invalidPlayError
+		return *g.Err
+	}
+
+	return nil
 }
 
 func (g *Grid) MakePlay(position int, player int) error {
-	if position < 0 || position > GRID_CELLS-1 {
-		return invalidPlayError
-	} else if player != 1 && player != 2 {
-		return invalidPlayError
-	} else if g.plays[position] != 0 {
-		return invalidPlayError
+	err := g.checkPlayInvalid(position, player)
+	if err != nil {
+		return err
+	}
+	if g.plays[position] != 0 {
+		g.Err = &invalidPlayError
+		return *g.Err
 	}
 
 	g.plays[position] = player
+	return nil
+}
+
+func (g *Grid) PrintPlay(position int, player int) error {
+	err := g.checkPlayInvalid(position, player)
+	if err != nil {
+		return err
+	}
 
 	col := (position) % GRID_HEIGHT_WIDTH
 	row := (position) / GRID_HEIGHT_WIDTH
@@ -35,6 +56,7 @@ func (g *Grid) MakePlay(position int, player int) error {
 			getPlayerMark(player) +
 			RESTORE_POSITION,
 	)
+
 	return nil
 }
 
@@ -46,7 +68,7 @@ func getPlayerMark(player int) string {
 	}
 }
 
-func (g Grid) Print() {
+func (g Grid) PrintNewGrid() {
 	vals := make([]string, GRID_CELLS)
 	for idx, play := range g.plays {
 		if play == 0 {
@@ -103,20 +125,22 @@ func (g *Grid) Reset() {
 	g.plays = *new([9]int)
 }
 
-func (g *Grid) SetError(err *error) {
-	g.err = err
-
-	if err != nil {
-		fmt.Print(
-			SAVE_POSITION+ansiUpN(2)+ansiForwardN(16),
-			*err,
-			RESTORE_POSITION,
-		)
-	} else {
-		fmt.Print(
-			SAVE_POSITION +
-				ansiUpN(2) + ansiForwardN(16) +
-				ERASE_LINE_TO_END + RESTORE_POSITION,
-		)
+func (g Grid) ShowError() {
+	if g.Err == nil {
+		return
 	}
+	fmt.Print(
+		SAVE_POSITION+ansiUpN(2)+ansiForwardN(16),
+		*g.Err,
+		RESTORE_POSITION,
+	)
+}
+
+func (g *Grid) ClearError() {
+	g.Err = nil
+	fmt.Print(
+		SAVE_POSITION +
+			ansiUpN(2) + ansiForwardN(16) +
+			ERASE_LINE_TO_END + RESTORE_POSITION,
+	)
 }
