@@ -19,12 +19,15 @@ func (g *Game) Start() {
 	var position int
 	player := 1
 
-	fmt.Print("Next Move: ")
+	fmt.Print("\n")
+
 	for {
+		ShowTurn(player)
+		fmt.Print(ansiUpN(1) + ERASE_LINE + "Next Move: ")
 		fmt.Scanf("%d%s", &position)
+
 		if err := g.grid.MakePlay(position-1, player); err != nil {
 			g.grid.SetError(&err)
-			fmt.Print(ansiUpN(1) + ERASE_LINE + "Next Move: ")
 			continue
 		} else {
 			g.grid.SetError(nil)
@@ -40,6 +43,16 @@ func (g *Game) Start() {
 		}
 
 		player = 3 - player
-		fmt.Print(ansiUpN(1) + ERASE_LINE + "Next Move: ")
 	}
+}
+
+func ShowTurn(player int) {
+	mark := getPlayerMark(player)
+	fmt.Print(
+		SAVE_POSITION +
+			ansiUpN(5) +
+			ansiForwardN(16) +
+			fmt.Sprintf("Turn: %s Player %d", mark, player) +
+			RESTORE_POSITION,
+	)
 }
