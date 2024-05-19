@@ -24,7 +24,18 @@ func (g *Game) Start() {
 	for {
 		ShowTurn(player)
 		fmt.Print(ansiUpN(1) + ERASE_LINE + "Next Move: ")
-		fmt.Scanf("%d%s", &position)
+
+		_, err := fmt.Scanf("%d\n", &position)
+		if err != nil && err.Error() != "unexpected newline" {
+			for {
+				_, err := fmt.Scanln()
+				if err == nil {
+					break
+				}
+			}
+		} else if err != nil {
+			continue
+		}
 
 		if err := g.grid.MakePlay(position-1, player); err != nil {
 			g.grid.ShowError()

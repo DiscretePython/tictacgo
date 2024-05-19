@@ -1,6 +1,8 @@
 package main
 
-import "tictacgo"
+import (
+	"tictacgo"
+)
 
 func main() {
 	game := tictacgo.New()
